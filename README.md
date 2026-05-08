@@ -1,464 +1,268 @@
-# PP - PowerApps Component Framework (PCF) Control
+# SkillBridge - AI-Powered Job Matching Platform
 
-A PowerApps Component Framework control that embeds an external web application (Skill Bridge) into a Power App using an iframe.
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 
-## 📋 Table of Contents
+SkillBridge is a comprehensive AI-powered job matching platform that connects job seekers with career opportunities through intelligent skill analysis, automated workflows, and seamless Microsoft ecosystem integration.
 
-- [Project Overview](#project-overview)
-- [Project Structure](#project-structure)
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Available Scripts](#available-scripts)
-- [Development Workflow](#development-workflow)
-- [Building & Deployment](#building--deployment)
-- [Architecture](#architecture)
-- [Technologies](#technologies)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
+## 🌟 Features
 
----
+- **AI-Powered Matching**: Uses OpenAI GPT and Google Gemini for intelligent skill-job matching
+- **Multi-Platform Integration**: Works across web, Power Apps, and Microsoft 365
+- **Automated Workflows**: Power Automate flows for notifications and job processing
+- **Responsive Design**: Modern, mobile-friendly interface built with Next.js
+- **Secure Architecture**: Enterprise-grade security with proper authentication and data protection
+- **Scalable API**: RESTful API built with Node.js and TypeScript
 
-## 📝 Project Overview
-
-This project implements a custom PowerApps Component Framework (PCF) control named **`pp`** that serves as a bridge between Power Apps and external web applications. The control embeds an external Skill Bridge application within a Power App interface using a sandboxed iframe.
-
-### Purpose
-- Integrate external web applications seamlessly into Power Apps
-- Provide secure communication between Power App and external web apps
-- Maintain responsive design across different screen sizes
-
----
-
-## 🗂️ Project Structure
+## 🏗️ Architecture Overview
 
 ```
-c:\pj\pp\
-├── pp/                           # Main PCF Control folder
-│   ├── index.ts                  # Main control implementation
-│   ├── ControlManifest.Input.xml # Control manifest configuration
-│   └── generated/
-│       └── ManifestTypes.d.ts   # Auto-generated TypeScript types
-├── obj/                          # Build output and NuGet packages
-│   ├── Debug/
-│   └── PowerAppsToolsTemp_au/    # Temporary build artifacts
-├── package.json                  # NPM dependencies and scripts
-├── pcfconfig.json                # PCF configuration
-├── pp.pcfproj                    # Project file (C#/.NET)
-├── tsconfig.json                 # TypeScript configuration
-├── eslint.config.mjs             # ESLint configuration
-└── README.md                      # This file
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Power Apps    │    │   Frontend      │    │   External      │
+│   (PCF Control) │◄──►│   (Vercel)      │◄──►│   Job Boards    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Power         │    │   API Layer     │    │   AI Services   │
+│   Automate      │◄──►│   (Node.js)     │◄──►│   (OpenAI +     │
+│   Flows         │    │                 │    │    Gemini)      │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   SharePoint    │    │   Database      │    │   Email/Teams   │
+│   Lists         │    │   (MongoDB)     │    │   Notifications │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-### Key Files
+## 📁 Project Structure
 
-| File | Purpose |
-|------|---------|
-| `pp/index.ts` | Main control class and lifecycle implementation |
-| `pp/ControlManifest.Input.xml` | Metadata about the control (properties, resources, domain allowlist) |
-| `package.json` | Dependencies and build scripts |
-| `pcfconfig.json` | PCF build output configuration |
-| `tsconfig.json` | TypeScript compiler options |
+```
+Skill-Bridge/
+├── frontend/             # Next.js web application (Vercel)
+│   ├── src/
+│   │   ├── app/         # Next.js 14 app router
+│   │   └── components/  # React components
+│   ├── package.json
+│   └── .env.example     # Environment variables template
+├── api/                 # Node.js REST API
+│   ├── src/
+│   │   ├── routes/      # API endpoints
+│   │   └── index.ts     # Main server file
+│   ├── package.json
+│   └── .env.example     # API configuration
+├── pcf-control/         # Power Apps Component Framework
+│   ├── pp/              # PCF control source
+│   ├── package.json
+│   └── README.md        # PCF-specific documentation
+├── flows/               # Power Automate flow exports
+│   ├── *.zip            # Exported flow packages
+│   └── README.md        # Flow documentation
+├── docs/                # Documentation
+│   ├── architecture.md  # System architecture details
+│   └── setup.md         # Complete setup guide
+└── README.md            # This file
+```
 
----
+## 🚀 Quick Start
 
-## ✨ Features
+### Prerequisites
+- Node.js 18+
+- Power Apps CLI
+- Git
+- Microsoft 365 account (for Power Apps/Automate)
 
-- **Iframe Embedding**: Seamlessly embeds external web applications using sandboxed iframes
-- **Responsive Design**: Dynamically adjusts iframe size based on allocated height and width
-- **Lazy Loading**: Implements lazy loading for performance optimization
-- **Security**: Uses iframe sandbox attributes to restrict capabilities
-- **External Domain Support**: Configured to allow `skill-bridge-two-zeta.vercel.app` domain
-- **Fullscreen Support**: Enables fullscreen capability for embedded content
-- **TypeScript Support**: Fully typed with TypeScript for better development experience
-
----
-
-## 📦 Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-- **Node.js** (v14 or higher) - [Download](https://nodejs.org/)
-- **npm** (v6 or higher) - Comes with Node.js
-- **PowerApps CLI** - Install via `npm install --global @microsoft/power-platform-cli`
-- **.NET Framework** (for building the project)
-- **Visual Studio Code** (recommended)
-- **Power Apps Account** - For testing and deployment
-
----
-
-## 🚀 Installation
-
-### Step 1: Clone/Open the Project
-
+### 1. Clone the Repository
 ```bash
-cd c:\pj\pp
+git clone https://github.com/vijayalakshmi1271/Skill-Bridge.git
+cd Skill-Bridge
 ```
 
-### Step 2: Install Dependencies
-
+### 2. Setup Frontend
 ```bash
+cd frontend
 npm install
+cp .env.example .env.local
+# Edit .env.local with your API keys
+npm run dev
 ```
 
-This will install all required dependencies including:
-- PCF Scripts
-- TypeScript
-- ESLint
-- Power Apps Component Framework types
-
-### Step 3: Verify Installation
-
+### 3. Setup API
 ```bash
-npm run build
-```
-
----
-
-## ⚙️ Configuration
-
-### External Domain Configuration
-
-The control is configured to communicate with an external domain. Update the domain allowlist in `pp/ControlManifest.Input.xml`:
-
-```xml
-<external-service-usage enabled="true">
-  <domain>skill-bridge-two-zeta.vercel.app</domain>
-</external-service-usage>
-```
-
-To add more domains, add additional `<domain>` elements.
-
-### Update Site URL
-
-The embedded site URL is configured in `pp/index.ts`:
-
-```typescript
-private readonly _siteUrl = "https://skill-bridge-two-zeta.vercel.app/";
-```
-
-To change the target application, modify this URL.
-
-### Iframe Sandbox Permissions
-
-Current sandbox permissions (in `pp/index.ts`):
-
-```
-allow-scripts                    // Execute JavaScript
-allow-same-origin                // Access same-origin resources
-allow-forms                      // Submit forms
-allow-popups                     // Open new windows
-allow-popups-to-escape-sandbox   // Popups can escape sandbox restrictions
-```
-
-Adjust these based on your security requirements.
-
----
-
-## 📜 Available Scripts
-
-### Build Scripts
-
-```bash
-# Build the project
-npm run build
-
-# Clean build artifacts
-npm run clean
-
-# Rebuild (clean + build)
-npm run rebuild
-```
-
-### Development Scripts
-
-```bash
-# Start development server with watch mode
-npm run start:watch
-
-# Start development server
-npm run start
-```
-
-### Code Quality
-
-```bash
-# Run ESLint checks
-npm run lint
-
-# Fix ESLint issues automatically
-npm run lint:fix
-```
-
-### Utilities
-
-```bash
-# Refresh TypeScript types from manifest
-npm run refreshTypes
-```
-
----
-
-## 💻 Development Workflow
-
-### 1. Start Development Server
-
-```bash
-npm run start:watch
-```
-
-This will:
-- Watch for file changes
-- Automatically rebuild on changes
-- Start a local dev server for testing
-
-### 2. Make Changes
-
-Edit `pp/index.ts` or related files. The watcher will automatically rebuild.
-
-### 3. Test Locally
-
-The development server provides a test harness in your browser (typically at `http://localhost:3000` or similar).
-
-### 4. Check Code Quality
-
-```bash
-npm run lint:fix
-```
-
-### 5. Commit Changes
-
-Ensure your code passes linting before committing.
-
----
-
-## 🔨 Building & Deployment
-
-### Build for Production
-
-```bash
-npm run build
-```
-
-Output files will be in the `out/controls/` directory.
-
-### Create Solution Package
-
-1. Build the control:
-   ```bash
-   npm run build
-   ```
-
-2. The compiled control will be available in `out/controls/`
-
-3. Import into Power Apps:
-   - Create a solution in Power Apps
-   - Add the control component
-   - Use the control in your apps
-
-### Publish to Power Apps Environment
-
-1. Install Power Apps CLI (if not already installed):
-   ```bash
-   npm install --global @microsoft/power-platform-cli
-   ```
-
-2. Authenticate:
-   ```bash
-   pac auth create --url https://YOUR_ENV.crm.dynamics.com
-   ```
-
-3. Push the control:
-   ```bash
-   pac pcf push --publisher-prefix ppj
-   ```
-
----
-
-## 🏗️ Architecture
-
-### Component Lifecycle
-
-The `pp` class implements the `ComponentFramework.StandardControl` interface:
-
-```
-init()           → Initialize control, create iframe, set up container
-   ↓
-updateView()     → Update dimensions and layout when context changes
-   ↓
-getOutputs()     → Return output values (if any)
-   ↓
-destroy()        → Clean up resources, remove DOM elements
-```
-
-### Data Flow
-
-```
-Power App Context
-       ↓
-   init() → Create iframe → Load external app
-       ↓
-  updateView() → Resize based on available space
-       ↓
-External App (Skill Bridge) ← Communicates via iframe
-```
-
-### iframe Security Model
-
-- **Sandboxed**: Restricted iframe prevents unauthorized access
-- **Same-origin policy**: Limited to configured domains
-- **Fullscreen allowed**: Users can expand embedded app to fullscreen
-
----
-
-## 🛠️ Technologies
-
-| Technology | Purpose |
-|------------|---------|
-| **TypeScript** | Type-safe JavaScript development |
-| **Power Apps Component Framework (PCF)** | Component model for Power Apps |
-| **HTML5/CSS3** | UI rendering |
-| **ESLint** | Code quality and style checking |
-| **npm** | Package management |
-| **.NET** | Build infrastructure |
-
-### Dependencies
-
-- `@types/powerapps-component-framework`: PCF type definitions
-- `typescript`: TypeScript compiler
-- `pcf-scripts`: PCF build tools
-- `@types/node`: Node.js type definitions
-- ESLint plugins: Code quality tools
-
----
-
-## 🐛 Troubleshooting
-
-### Issue: "Cannot find module" errors
-
-**Solution:**
-```bash
+cd ../api
 npm install
-npm run refreshTypes
-npm run build
+cp .env.example .env
+# Edit .env with your configuration
+npm run dev
 ```
 
-### Issue: ESLint errors
-
-**Solution:**
+### 4. Setup PCF Control
 ```bash
-npm run lint:fix
+cd ../pcf-control
+npm install
+npm run build
+pac auth create --url https://your-env.crm.dynamics.com
+pac pcf push --publisher-prefix ppj
 ```
 
-### Issue: iframe not loading
+For detailed setup instructions, see [docs/setup.md](docs/setup.md).
 
-**Check:**
-1. External domain is added to `ControlManifest.Input.xml`
-2. Domain CORS headers are configured correctly
-3. Site URL is correct in `index.ts`
-4. Sandbox permissions include `allow-scripts` and `allow-same-origin`
+## 🔧 Technology Stack
 
-### Issue: Control not visible in Power Apps
+### Frontend
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Deployment**: Vercel
 
-**Check:**
-1. Build completed successfully: `npm run build`
-2. Solution was created with compiled control
-3. Control was published to environment
-4. Publisher prefix matches (`ppj` in this project)
+### Backend API
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Language**: TypeScript
+- **AI Integration**: OpenAI GPT-3.5, Google Gemini
+- **Database**: MongoDB (planned)
 
-### Issue: Dimensions not updating
+### Power Apps Integration
+- **Framework**: Power Apps Component Framework (PCF)
+- **Language**: TypeScript
+- **Rendering**: HTML5 Canvas
 
-**Solution:**
-Ensure `updateView()` is being called by Power Apps context. Check that:
-- `context.mode.allocatedHeight` is available
-- Container element exists
-- No CSS overflow hidden on parent elements
+### Automation
+- **Platform**: Microsoft Power Automate
+- **Connectors**: SharePoint, Outlook, Teams, HTTP
 
----
+### Data Storage
+- **Primary**: Microsoft SharePoint Online
+- **Documents**: SharePoint Document Libraries
 
-## 📚 Additional Resources
+## 📊 API Endpoints
 
-- [Power Apps Component Framework Documentation](https://docs.microsoft.com/en-us/power-apps/developer/component-framework/overview)
-- [PCF Samples on GitHub](https://github.com/microsoft/PowerApps-Samples/tree/master/component-framework)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [ESLint Documentation](https://eslint.org/)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/health` | GET | Health check |
+| `/api/skills/analyze` | POST | Analyze user skills with AI |
+| `/api/skills/suggestions` | GET | Get skill suggestions |
+| `/api/jobs` | GET | Retrieve job listings |
+| `/api/jobs/:id` | GET | Get specific job details |
+| `/api/matches` | POST | Perform skill-job matching |
+| `/api/matches/batch` | POST | Batch matching for multiple jobs |
 
----
+## 🔐 Environment Variables
+
+### Frontend (.env.local)
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001/api
+OPENAI_API_KEY=your_openai_key
+GEMINI_API_KEY=your_gemini_key
+```
+
+### API (.env)
+```env
+PORT=3001
+OPENAI_API_KEY=your_openai_key
+GEMINI_API_KEY=your_gemini_key
+MONGODB_URI=your_mongodb_uri
+```
+
+See `.env.example` files in each directory for complete configuration.
+
+## 🚀 Deployment
+
+### Frontend (Vercel)
+```bash
+cd frontend
+npm install -g vercel
+vercel --prod
+```
+
+### API (Azure/Heroku/AWS)
+```bash
+cd api
+npm run build
+# Deploy dist/ folder to your hosting provider
+```
+
+### PCF Control (Power Apps)
+```bash
+cd pcf-control
+pac pcf push --publisher-prefix ppj
+```
+
+## 🔄 Development Workflow
+
+1. **Local Development**: Run all components locally with `npm run dev`
+2. **Testing**: Test integrations between components
+3. **Build**: Use `npm run build` in each component
+4. **Deploy**: Deploy components to respective platforms
+5. **Monitor**: Check logs and performance metrics
 
 ## 🤝 Contributing
 
-### Guidelines
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-1. Create a feature branch: `git checkout -b feature/your-feature`
-2. Make your changes
-3. Run code quality checks: `npm run lint:fix`
-4. Test thoroughly
-5. Commit with clear messages
-6. Push and create a pull request
+## 📝 Documentation
 
-### Code Style
+- **[Architecture](docs/architecture.md)**: Detailed system architecture
+- **[Setup Guide](docs/setup.md)**: Complete setup and deployment instructions
+- **[PCF Control](pcf-control/README.md)**: Power Apps component documentation
+- **[API Documentation](api/README.md)**: API endpoint details
 
-- Follow the ESLint rules configured in `eslint.config.mjs`
-- Use TypeScript for type safety
-- Add comments for complex logic
-- Keep functions small and focused
+## 🐛 Troubleshooting
 
----
+### Common Issues
+- **Frontend not loading**: Check Vercel deployment and environment variables
+- **API errors**: Verify API keys and database connectivity
+- **PCF control issues**: Ensure proper Power Apps authentication and permissions
+- **Flow failures**: Check Power Automate connections and SharePoint access
+
+See [docs/setup.md](docs/setup.md) for detailed troubleshooting steps.
+
+## 📈 Roadmap
+
+### Phase 1 (Current)
+- ✅ AI-powered skill matching
+- ✅ Power Apps integration
+- ✅ Basic job search functionality
+- ✅ Automated notification flows
+
+### Phase 2 (Next)
+- 🔄 Advanced AI algorithms
+- 🔄 Video interview integration
+- 🔄 Skills certification tracking
+- 🔄 Employer analytics dashboard
+
+### Phase 3 (Future)
+- 📋 Mobile native applications
+- 📋 LinkedIn Learning integration
+- 📋 Advanced reporting
+- 📋 Multi-tenant architecture
 
 ## 📄 License
 
-This project is part of the Power Apps ecosystem. Check with your organization for licensing details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Microsoft Power Platform team for PCF and Power Automate
+- OpenAI for GPT API
+- Google for Gemini API
+- Vercel for hosting platform
+
+## 📞 Support
+
+For support and questions:
+- Create an issue in this repository
+- Check the documentation in the `docs/` folder
+- Review troubleshooting guides
 
 ---
 
-## 📞 Support & Contact
+**Live Demo**: [https://skill-bridge-two-zeta.vercel.app](https://skill-bridge-two-zeta.vercel.app)
 
-For issues or questions:
-1. Check the [Troubleshooting](#troubleshooting) section
-2. Review Power Apps documentation
-3. Contact your development team
-
----
-
-## 📝 Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 0.0.1 | 2026-05-08 | Initial release - iframe-based control for Skill Bridge integration |
-
----
-
-## 🎯 Project Plan & Roadmap
-
-### Current Status
-- ✅ Basic iframe embedding working
-- ✅ Responsive sizing implemented
-- ✅ Security sandbox configured
-- ✅ External domain allowlisting configured
-
-### Planned Features (v0.1.0+)
-- [ ] Add postMessage communication between Power App and iframe
-- [ ] Implement data binding for inputs/outputs
-- [ ] Add configuration UI for URL customization
-- [ ] Create error handling and loading states
-- [ ] Add logging and debugging capabilities
-- [ ] Performance monitoring
-
-### Known Limitations
-1. Currently no data binding - control is display-only
-2. Limited inter-app communication (no postMessage yet)
-3. No custom styling options for iframe wrapper
-4. Requires external domain in manifest
-
-### Future Enhancements
-- Real-time synchronization between Power App and embedded app
-- Multiple iframe support
-- Theme customization
-- Analytics integration
-- A/B testing capabilities
-
----
-
-Last Updated: May 8, 2026
+**Repository**: [https://github.com/vijayalakshmi1271/Skill-Bridge](https://github.com/vijayalakshmi1271/Skill-Bridge)
